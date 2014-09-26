@@ -1,9 +1,22 @@
-Gemfile.lock
-metadata.json
-spec/fixtures/modules/pulp
-pkg/
+# IDE related
+.idea/
+.project/
+
+# Testing and development
+.vagrant/
+spec/fixtures/modules/
+spec/fixtures/manifests/
 .rspec_system/
-.bundle/
-spec/fixtures/manifests/site.pp
+.vagrant/
+/Vagrantfile
+
+# Ruby and RVM
 .ruby-version
-.ruby-gemset
+.rvmrc
+
+# Bundler
+Gemfile.lock
+.bundle/
+
+# Puppet module generated
+pkg/

@@ -1,8 +1,7 @@
 # installs the pulp::consumer client
 class pulp::consumer(
   $ensure = 'present',
-  $server = $::fqdn,
-  $conf_template = 'pulp/consumer.conf.erb') {
+  $server = $::fqdn) {
 
   package { [ 'pulp-agent',
               'pulp-consumer-client',
@@ -16,6 +15,9 @@ class pulp::consumer(
 
   # For the template
   $pulp_server = $server
+
+  Package['pulp-consumer-client'] -> Pulp_consumer_config<| |> -> File['/etc/pulp/consumer/consumer.conf']
+  Pulp_consumer_config<| |> ~> Service['pulp-agent']
 
   if $ensure == 'absent' {
     file { '/etc/pulp/consumer/consumer.conf':
@@ -32,9 +34,9 @@ class pulp::consumer(
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      content => template($conf_template),
-      require => Package['pulp-consumer-client']
     }
+
+    pulp_consumer_config { 'server/host': value => $pulp_server }
 
     service { 'pulp-agent':
       ensure  => 'running',

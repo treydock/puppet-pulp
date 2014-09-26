@@ -1,53 +1,21 @@
 require 'spec_helper'
-require 'classes/shared_admin_client_packages'
-require 'classes/shared_admin_client_conf'
 
 describe 'pulp::admin_client' do
-  let(:server) { 'fqdn.myhost.com' }
-  let(:facts) { { :fqdn => server } }
 
-  it { should_not be_nil }
-
-  context 'with default params' do
-    include_context :admin_client_packages_present
-    include_context :admin_client_conf_present
-    include_context :admin_client_conf_default_template
+  let(:fqdn) { 'fqdn.myhost.com' }
+  let(:facts) do 
+    {
+      :fqdn     => fqdn,
+      :osfamily => 'RedHat',
+    }
   end
 
-  context 'conf_template => test/admin.conf.erb' do
-    let(:params) { { :conf_template => 'test/admin.conf.erb' } }
+  it { should contain_anchor('pulp::admin_client::start').that_comes_before('Class[pulp::admin_client::install]') }
+  it { should contain_class('pulp::admin_client::install').that_comes_before('Class[pulp::admin_client::config]') }
+  it { should contain_class('pulp::admin_client::config').that_comes_before('Anchor[pulp::admin_client::end]') }
+  it { should contain_anchor('pulp::admin_client::end') }
 
-    include_context :admin_client_conf_test_template
-  end
+  it_behaves_like 'pulp::admin_client::install'
+  it_behaves_like 'pulp::admin_client::config'
 
-  context 'ensure => present' do
-    let(:params) { { :ensure => 'present' } }
-
-    include_context :admin_client_packages_present
-    include_context :admin_client_conf_present
-    include_context :admin_client_conf_default_template
-  end
-
-  context 'ensure => 2.2.0-1.el6' do
-    let(:version) { '2.2.0-1.el6' }
-    let(:params) { { :ensure => version} }
-
-    include_context :admin_client_packages_pinned
-    include_context :admin_client_conf_present
-    include_context :admin_client_conf_default_template
-  end
-
-  context 'ensure => absent' do
-    let(:params) { { :ensure => 'absent' } }
-
-    include_context :admin_client_packages_absent
-    include_context :admin_client_conf_absent
-  end
-
-  context 'server => otherserver.myhost.com' do
-    let(:server) { 'othersrever.myhost.com' }
-    let(:params) { { :server => server } }
-
-    include_context :admin_client_conf_default_template
-  end
 end

@@ -7,7 +7,6 @@ shared_context :consumer_conf_present do
       :owner   => 'root',
       :group   => 'root',
       :mode    => '0644',
-      :require => 'Package[pulp-consumer-client]'
     })
   end
 end
@@ -19,14 +18,14 @@ shared_context :consumer_conf_absent do
   end
 end
 
-shared_context :consumer_conf_default_template do
+shared_context :consumer_config_present do
   it do
-    should contain_file('/etc/pulp/consumer/consumer.conf').with_content /#{server}/
+    should contain_pulp_consumer_config('server/host').with_value server
   end
 end
 
-shared_context :consumer_conf_test_template do
+shared_context :consumer_config_absent do
   it do
-    should contain_file('/etc/pulp/consumer/consumer.conf').with_content /This is a test template/
+    should_not contain_pulp_consumer_config('server/host')
   end
 end

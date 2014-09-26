@@ -1,68 +1,64 @@
 # installs the pulp server
 class pulp::server(
   $ensure = 'present',
-  $conf_template = '') {
+  $manage_apache = true,
+  $manage_mongodb = true,
+  $database_name  = 'pulp_database',
+  $mongodb_server = 'localhost',
+  $mongodb_port = '27017',
+  $database_username = undef,
+  $database_password = undef,
+  $oauth_enabled = false,
+  $oauth_key  = undef,
+  $oauth_secret = undef,
+) {
 
-  if $ensure == 'absent' {
-    package { [ 'pulp-server',
-                'pulp-puppet-plugins',
-                'pulp-rpm-plugins',
-                'pulp-selinux']:
-      ensure => 'absent'
-    }
+  validate_bool($manage_apache)
+  validate_bool($manage_mongodb)
+  validate_bool($oauth_enabled)
 
-    file { '/etc/pulp/server.conf':
-      ensure => 'absent'
+  case $ensure {
+    'present': {
+      $directory_ensure = 'directory'
+      $file_ensure      = 'file'
+      $package_ensure   = 'present'
+      $service_ensure   = 'running'
+      $service_enable   = true
     }
-
-    service { [ 'mongod', 'qpidd' ]:
-      ensure => 'stopped'
+    'absent': {
+      $directory_ensure = 'absent'
+      $file_ensure      = 'absent'
+      $package_ensure   = 'absent'
+      $service_ensure   = 'stopped'
+      $service_enable   = false
     }
-  } else {
-    package { [ 'pulp-server',
-                'pulp-puppet-plugins',
-                'pulp-rpm-plugins',
-                'pulp-selinux']:
-      ensure => $ensure,
-      notify => Exec['setup-pulp-db'],
-      before => [Service['mongod'], Service['qpidd']];
-              'httpd':
-      ensure => 'present'
-    }
-
-    if $conf_template == '' {
-      $template = 'pulp/server.conf.erb'
-    } else {
-      $template = $conf_template
-    }
-
-    file { '/etc/pulp/server.conf':
-      ensure  => 'present',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => template($template),
-      require => Package['pulp-server']
-    }
-
-    service { [ 'mongod', 'qpidd']:
-      ensure  => 'running',
-      require => File['/etc/pulp/server.conf']
-    }
-
-    # The mongod service script doesn't block, so we'll keep trying
-    # this for up to two minutes
-    exec { 'setup-pulp-db':
-      command     => '/usr/bin/pulp-manage-db',
-      refreshonly => true,
-      tries       => 12,
-      try_sleep   => 10,
-      require     => [Service['mongod'], Service['qpidd']]
-    }
-
-    service { 'httpd':
-      ensure    => 'running',
-      subscribe => Exec['setup-pulp-db']
+    default: {
+      fail("Module ${module_name}: ensure parameter must be 'present' or 'absent', ${ensure} given.")
     }
   }
+
+  anchor { 'pulp::server::start': }
+  anchor { 'pulp::server::end': }
+
+  include pulp::server::install
+  include pulp::server::config
+  include pulp::server::service
+
+  if $manage_mongodb {
+    include ::mongodb::server
+
+    Anchor['pulp::server::start']->
+    Class['::mongodb::server']->
+    Class['pulp::server::install']->
+    Class['pulp::server::config']->
+    Class['pulp::server::service']->
+    Anchor['pulp::server::end']
+  } else {
+    Anchor['pulp::server::start']->
+    Class['pulp::server::install']->
+    Class['pulp::server::config']->
+    Class['pulp::server::service']->
+    Anchor['pulp::server::end']
+  }
+
 }

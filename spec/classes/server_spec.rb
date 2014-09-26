@@ -1,55 +1,24 @@
 require 'spec_helper'
-require 'classes/shared_server_packages'
-require 'classes/shared_server_conf'
-require 'classes/shared_server_services'
-require 'classes/shared_server_setup_db'
 
 describe 'pulp::server' do
-  it { should_not be_nil }
 
-  context 'with default params' do
-    include_context :server_packages_present
-    include_context :server_conf_present
-    include_context :server_services_running
-    include_context :server_setup_db
-    include_context :server_conf_default_template
+  let(:fqdn) { 'fqdn.myhost.com' }
+  let(:facts) do 
+    {
+      :fqdn     => fqdn,
+      :osfamily => 'RedHat',
+    }
   end
 
-  context 'ensure => present' do
-    let(:params) { { :ensure => 'present' } }
-    include_context :server_packages_present
-    include_context :server_conf_present
-    include_context :server_services_running
-    include_context :server_setup_db
+  it { should contain_anchor('pulp::server::start').that_comes_before('Class[mongodb::server]') }
+  it { should contain_class('mongodb::server').that_comes_before('Class[pulp::server::install]') }
+  it { should contain_class('pulp::server::install').that_comes_before('Class[pulp::server::config]') }
+  it { should contain_class('pulp::server::config').that_comes_before('Class[pulp::server::service]') }
+  it { should contain_class('pulp::server::service').that_comes_before('Anchor[pulp::server::end]') }
+  it { should contain_anchor('pulp::server::end') }
 
-    context 'conf_template => test/server.conf.erb' do
-      let(:params) do
-        { :ensure => 'present',
-          :conf_template => 'test/server.conf.erb' }
-      end
-      include_context :server_conf_test_template
-    end
+  it_behaves_like 'pulp::server::install'
+  it_behaves_like 'pulp::server::config'
+  it_behaves_like 'pulp::server::service'
 
-    context 'with default conf_template' do
-      include_context :server_conf_default_template
-    end
-  end
-
-  context 'ensure => 2.2.0-1.el6' do
-    let(:params) { { :ensure => version } }
-    let(:version) { '2.2.0-1.el6' }
-
-    include_context :server_packages_pinned
-    include_context :server_conf_present
-    include_context :server_services_running
-    include_context :server_setup_db
-  end
-
-
-  context 'ensure => absent' do
-    let(:params) { { :ensure => 'absent' } }
-    include_context :server_packages_absent
-    include_context :server_conf_absent
-    include_context :server_services_stopped
-  end
 end

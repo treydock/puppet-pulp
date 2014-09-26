@@ -12,7 +12,7 @@ describe 'pulp::consumer' do
   context 'with default parameters' do
     include_context :consumer_packages_present
     include_context :consumer_conf_present
-    include_context :consumer_conf_default_template
+    include_context :consumer_config_present
     include_context :consumer_services_running
   end
 
@@ -20,7 +20,7 @@ describe 'pulp::consumer' do
     let(:params) { { :ensure => 'present' } }
     include_context :consumer_packages_present
     include_context :consumer_conf_present
-    include_context :consumer_conf_default_template
+    include_context :consumer_config_present
     include_context :consumer_services_running
   end
 
@@ -30,7 +30,7 @@ describe 'pulp::consumer' do
 
     include_context :consumer_packages_pinned
     include_context :consumer_conf_present
-    include_context :consumer_conf_default_template
+    include_context :consumer_config_present
     include_context :consumer_services_running
   end
 
@@ -38,20 +38,14 @@ describe 'pulp::consumer' do
     let(:params) { { :server => 'otherbox.myhost.com' } }
     let(:server) { 'otherbox.myhost.com' }
 
-    include_context :consumer_conf_default_template
-  end
-
-  context 'conf_template => test/consumer.conf.erb' do
-    let(:params) { { :conf_template => 'test/consumer.conf.erb' } }
-
-    include_context :consumer_conf_test_template
+    include_context :consumer_config_present
   end
 
   context 'ensure => absent' do
     let(:params) { { :ensure => 'absent' } }
 
     include_context :consumer_packages_absent
-    include_context :consumer_conf_absent
+    include_context :consumer_config_absent
     include_context :consumer_services_stopped
   end
 end

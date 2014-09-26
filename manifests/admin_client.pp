@@ -1,32 +1,34 @@
 # Installs the admin client
-class pulp::admin_client(
+class pulp::admin_client (
   $ensure = 'present',
   $server = $::fqdn,
-  $conf_template = '') {
+  $verify_ssl = true,
+  $ca_path = '/etc/pki/tls/certs/ca-bundle.crt',
+) {
 
-  package { [ 'pulp-admin-client',
-              'pulp-puppet-admin-extensions',
-              'pulp-rpm-admin-extensions']:
-    ensure => $ensure
-  }
-
-  # For the template
-  $pulp_server = $server
-
-  if $conf_template == '' {
-    $template = 'pulp/admin.conf.erb'
-  } else {
-    $template = $conf_template
-  }
-
-  if $ensure == 'absent' {
-    file { '/etc/pulp/admin/admin.conf':
-      ensure => 'absent'
+  case $ensure {
+    'present': {
+      $file_ensure      = 'file'
+      $package_ensure   = 'present'
     }
-  } else {
-    file { '/etc/pulp/admin/admin.conf':
-      ensure  => 'present',
-      content => template($template)
+    'absent': {
+      $file_ensure      = 'absent'
+      $package_ensure   = 'absent'
+    }
+    default: {
+      fail("Module ${module_name}: ensure parameter must be 'present' or 'absent', ${ensure} given.")
     }
   }
+
+  anchor { 'pulp::admin_client::start': }
+  anchor { 'pulp::admin_client::end': }
+
+  include pulp::admin_client::install
+  include pulp::admin_client::config
+
+  Anchor['pulp::admin_client::start']->
+  Class['pulp::admin_client::install']->
+  Class['pulp::admin_client::config']->
+  Anchor['pulp::admin_client::end']
+
 }
