@@ -7,3 +7,5 @@ Dir["#{dir}/support/**/*.rb"].sort.each { |f| require f }
 def fixture_path
   File.join File.dirname(__FILE__), 'fixtures'
 end
+
+at_exit { RSpec::Puppet::Coverage.report! }

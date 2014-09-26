@@ -10,6 +10,8 @@ describe 'pulp::server' do
     }
   end
 
+  it { should create_class('pulp::server') }
+
   it { should contain_anchor('pulp::server::start').that_comes_before('Class[mongodb::server]') }
   it { should contain_class('mongodb::server').that_comes_before('Class[pulp::server::install]') }
   it { should contain_class('pulp::server::install').that_comes_before('Class[pulp::server::config]') }

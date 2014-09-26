@@ -3,11 +3,28 @@ shared_examples_for 'pulp::server::config' do
     should contain_file('/etc/pulp/server.conf').with({
       :ensure  => 'file',
       :owner   => 'root',
-      :group   => 'root',
-      :mode    => '0644',
+      :group   => 'apache',
+      :mode    => '0640',
     })
   end
 
+  it do
+    verify_contents(catalogue, '/etc/pulp/server.conf', [
+      '[database]',
+      'name: pulp_database',
+      'seeds: localhost:27017',
+      '[server]',
+      '[authentication]',
+      '[security]',
+      '[consumer_history]',
+      '[data_reaping]',
+      '[oauth]',
+      '[messaging]',
+      '[tasks]',
+      '[email]',
+    ])
+  end
+=begin
   it do
     should contain_pulp_server_config('database/name').with({
       :ensure => 'present',
@@ -40,7 +57,7 @@ shared_examples_for 'pulp::server::config' do
 
   it { should_not contain_pulp_server_config('oauth/oauth_key') }
   it { should_not contain_pulp_server_config('oauth/oauth_secret') }
-
+=end
   it do
     should contain_file_line('qpidd auth').with({
       :path   => '/etc/qpid/qpidd.conf',
@@ -58,5 +75,28 @@ shared_examples_for 'pulp::server::config' do
       :user        => 'apache',
       :unless      => 'test -f /var/lib/pulp/.puppet-pulp-manage-db',
     })
+  end
+
+  context 'when database username and password defined' do
+    let(:params) {{ :database_username => 'foo', :database_password => 'bar' }}
+
+    it do
+      verify_contents(catalogue, '/etc/pulp/server.conf', [
+        '[database]',
+        'name: pulp_database',
+        'seeds: localhost:27017',
+        'username: foo',
+        'password: bar',
+        '[server]',
+        '[authentication]',
+        '[security]',
+        '[consumer_history]',
+        '[data_reaping]',
+        '[oauth]',
+        '[messaging]',
+        '[tasks]',
+        '[email]',
+      ])
+    end
   end
 end

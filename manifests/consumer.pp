@@ -30,10 +30,10 @@ class pulp::consumer(
     }
   } else {
     file { '/etc/pulp/consumer/consumer.conf':
-      ensure  => 'present',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
+      ensure => 'present',
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0644',
     }
 
     pulp_consumer_config { 'server/host': value => $pulp_server }
