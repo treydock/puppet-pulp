@@ -13,6 +13,7 @@ shared_examples_for 'pulp::server::config' do
       :ensure => 'present',
       :notify => 'Service[httpd]',
       :value  => 'pulp_database',
+      :before => 'Exec[pulp-manage-db]',
     })
   end
 
@@ -21,6 +22,7 @@ shared_examples_for 'pulp::server::config' do
       :ensure => 'present',
       :notify => 'Service[httpd]',
       :value  => 'localhost:27017',
+      :before => 'Exec[pulp-manage-db]',
     })
   end
 
@@ -32,6 +34,7 @@ shared_examples_for 'pulp::server::config' do
       :ensure => 'present',
       :notify => 'Service[httpd]',
       :value  => 'false',
+      :before => 'Exec[pulp-manage-db]',
     })
   end
 
@@ -54,12 +57,6 @@ shared_examples_for 'pulp::server::config' do
       :try_sleep   => '10',
       :user        => 'apache',
       :unless      => 'test -f /var/lib/pulp/.puppet-pulp-manage-db',
-      :require     => [
-        'Pulp_server_config[database/name]',
-        'Pulp_server_config[database/seeds]',
-        'Pulp_server_config[database/username]',
-        'Pulp_server_config[database/password]',
-      ],
     })
   end
 end

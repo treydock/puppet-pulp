@@ -6,13 +6,6 @@ class pulp::server::config {
     false => 'false',
   }
 
-  $pulp_manage_db_require = [
-    Pulp_server_config['database/name'],
-    Pulp_server_config['database/seeds'],
-    Pulp_server_config['database/username'],
-    Pulp_server_config['database/password'],
-  ]
-
   file { '/etc/pulp/server.conf':
     ensure => $pulp::server::file_ensure,
     owner  => 'root',
@@ -23,6 +16,7 @@ class pulp::server::config {
   Pulp_server_config {
     ensure  => $pulp::server::ensure,
     notify  => Service['httpd'],
+    before  => Exec['pulp-manage-db'],
   }
 
   pulp_server_config { 'database/name': value => $pulp::server::database_name }
@@ -59,7 +53,6 @@ class pulp::server::config {
     try_sleep   => 10,
     user        => 'apache',
     unless      => 'test -f /var/lib/pulp/.puppet-pulp-manage-db',
-    require     => $pulp_manage_db_require,
   }
 
 }
