@@ -13,13 +13,13 @@ class pulp::admin_client::config {
     mode   => '0644',
   }
 
-  Pulp_server_config {
+  Pulp_admin_config {
     ensure  => $pulp::admin_client::ensure,
   }
 
-  pulp_server_config { 'server/host': value => $pulp::admin_client::server }
-  pulp_server_config { 'server/verify_ssl': value => $verify_ssl }
-  pulp_server_config { 'server/ca_path': value => $pulp::admin_client::ca_path }
+  pulp_admin_config { 'server/host': value => $pulp::admin_client::server }
+  pulp_admin_config { 'server/verify_ssl': value => $verify_ssl }
+  pulp_admin_config { 'server/ca_path': value => $pulp::admin_client::ca_path }
 
 
 }

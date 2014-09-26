@@ -9,21 +9,21 @@ shared_examples_for 'pulp::admin_client::config' do
   end
 
   it do
-    should contain_pulp_server_config('server/host').with({
+    should contain_pulp_admin_config('server/host').with({
       :ensure => 'present',
       :value  => facts[:fqdn],
     })
   end
 
   it do
-    should contain_pulp_server_config('server/verify_ssl').with({
+    should contain_pulp_admin_config('server/verify_ssl').with({
       :ensure => 'present',
       :value  => 'True',
     })
   end
 
   it do
-    should contain_pulp_server_config('server/ca_path').with({
+    should contain_pulp_admin_config('server/ca_path').with({
       :ensure => 'present',
       :value  => '/etc/pki/tls/certs/ca-bundle.crt',
     })
