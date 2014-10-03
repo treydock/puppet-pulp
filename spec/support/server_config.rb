@@ -86,6 +86,7 @@ shared_examples_for 'pulp::server::config' do
         'name: pulp_database',
         'seeds: localhost:27017',
         'username: foo',
+        'user: foo',
         'password: bar',
         '[server]',
         '[authentication]',
