@@ -1,6 +1,7 @@
 # Installs the admin client
 class pulp::admin_client (
   $ensure = 'present',
+  $package_ensure = undef,
   $server = $::fqdn,
   $verify_ssl = true,
   $ca_path = '/etc/pki/tls/certs/ca-bundle.crt',
@@ -9,11 +10,11 @@ class pulp::admin_client (
   case $ensure {
     'present': {
       $file_ensure      = 'file'
-      $package_ensure   = 'present'
+      $_package_ensure  = pick($package_ensure, 'present')
     }
     'absent': {
       $file_ensure      = 'absent'
-      $package_ensure   = 'absent'
+      $_package_ensure  = 'absent'
     }
     default: {
       fail("Module ${module_name}: ensure parameter must be 'present' or 'absent', ${ensure} given.")

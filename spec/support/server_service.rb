@@ -4,8 +4,8 @@ shared_examples_for 'pulp::server::service' do
       :ensure     => 'running',
       :enable     => 'true',
       :hasrestart => 'true',
-      :before     => 'Service[httpd]',
-    })
+    }) \
+    .that_comes_before('Service[httpd]')
   end
 
   it do
@@ -21,9 +21,9 @@ shared_examples_for 'pulp::server::service' do
       :ensure     => 'running',
       :enable     => 'true',
       :hasrestart => 'true',
-      :before     => 'Service[pulp_celerybeat]',
-      :require    => 'Service[httpd]',
-    })
+    }) \
+    .that_comes_before('Service[pulp_celerybeat]') \
+    .that_requires('Service[httpd]')
   end
 
   it do
@@ -31,8 +31,8 @@ shared_examples_for 'pulp::server::service' do
       :ensure     => 'running',
       :enable     => 'true',
       :hasrestart => 'true',
-      :before     => 'Service[pulp_resource_manager]',
-    })
+    }) \
+    .that_comes_before('Service[pulp_resource_manager]')
   end
 
   it do
