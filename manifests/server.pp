@@ -6,8 +6,10 @@ class pulp::server(
   $database_name  = 'pulp_database',
   $database_server = 'localhost',
   $database_port = '27017',
+  $database_seeds = undef,
   $database_username = undef,
   $database_password = undef,
+  $database_replica_set = undef,
 ) {
 
   validate_bool($manage_apache)

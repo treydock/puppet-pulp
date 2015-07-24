@@ -1,4 +1,5 @@
-Puppet::Type.type(:pulp_consumer_config).provide(
+
+Puppet::Type.type(:pulp_server_config).provide(
   :ini_setting,
   :parent => Puppet::Type.type(:ini_setting).provider(:ruby)
 ) do
@@ -16,6 +17,6 @@ Puppet::Type.type(:pulp_consumer_config).provide(
   end
 
   def self.file_path
-    '/etc/pulp/consumer/consumer.conf'
+    '/etc/pulp/server.conf'
   end
 end

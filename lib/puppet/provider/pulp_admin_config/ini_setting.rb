@@ -12,7 +12,7 @@ Puppet::Type.type(:pulp_admin_config).provide(
   end
 
   def separator
-    ' = '
+    ': '
   end
 
   def self.file_path

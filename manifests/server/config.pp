@@ -1,28 +1,37 @@
 # private class
 class pulp::server::config {
 
-  file { '/etc/pulp/server.conf':
-    ensure  => $pulp::server::file_ensure,
-    owner   => 'root',
-    group   => 'apache',
-    mode    => '0640',
-    content => template('pulp/server.conf.erb'),
+  if $pulp::server::database_seeds {
+    $_database_seeds = $pulp::server::database_seeds
+  } else {
+    $_database_seeds = "${pulp::server::database_server}:${pulp::server::database_port}"
   }
 
-#  Pulp_server_config {
-#    ensure  => $pulp::server::ensure,
-#    notify  => Service['httpd'],
-#    before  => Exec['pulp-manage-db'],
+#  file { '/etc/pulp/server.conf':
+#    ensure  => $pulp::server::file_ensure,
+#    owner   => 'root',
+#    group   => 'apache',
+#    mode    => '0640',
+#    content => template('pulp/server.conf.erb'),
 #  }
 
-#  pulp_server_config { 'database/name': value => $pulp::server::database_name }
-#  pulp_server_config { 'database/seeds': value => "${pulp::server::database_server}:${pulp::server::database_port}" }
-#  if $pulp::server::database_username {
-#    pulp_server_config { 'database/username': value => $pulp::server::database_username }
-#  }
-#  if $pulp::server::database_password {
-#    pulp_server_config { 'database/password': value => $pulp::server::database_password }
-#  }
+  Pulp_server_config {
+    ensure  => $pulp::server::ensure,
+    notify  => Class['pulp::server::service'],
+    before  => Exec['pulp-manage-db'],
+  }
+
+  pulp_server_config { 'database/name': value => $pulp::server::database_name }
+  pulp_server_config { 'database/seeds': value => $_database_seeds }
+  if $pulp::server::database_username {
+    pulp_server_config { 'database/username': value => $pulp::server::database_username }
+  }
+  if $pulp::server::database_password {
+    pulp_server_config { 'database/password': value => $pulp::server::database_password }
+  }
+  if $pulp::server::database_replica_set {
+    pulp_server_config { 'database/replica_set': value => $pulp::server::database_replica_set }
+  }
 
   if $pulp::server::ensure == 'present' {
     file_line { 'qpidd auth':
