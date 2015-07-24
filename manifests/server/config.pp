@@ -1,12 +1,6 @@
 # private class
 class pulp::server::config {
 
-  if $pulp::server::database_seeds {
-    $_database_seeds = $pulp::server::database_seeds
-  } else {
-    $_database_seeds = "${pulp::server::database_server}:${pulp::server::database_port}"
-  }
-
 #  file { '/etc/pulp/server.conf':
 #    ensure  => $pulp::server::file_ensure,
 #    owner   => 'root',
@@ -22,7 +16,7 @@ class pulp::server::config {
   }
 
   pulp_server_config { 'database/name': value => $pulp::server::database_name }
-  pulp_server_config { 'database/seeds': value => $_database_seeds }
+  pulp_server_config { 'database/seeds': value => $pulp::server::_database_seeds }
   if $pulp::server::database_username {
     pulp_server_config { 'database/username': value => $pulp::server::database_username }
   }

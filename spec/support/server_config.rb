@@ -108,8 +108,16 @@ shared_examples_for 'pulp::server::config' do
     end
   end
 
-  context 'when database_seeds defined' do
+  context 'when database_seeds defined as a string' do
     let(:params) {{ :database_seeds => 'db01:27017,db02:27017' }}
+
+    it do
+      should contain_pulp_server_config('database/seeds').with_value('db01:27017,db02:27017')
+    end
+  end
+
+  context 'when database_seeds defined as an array' do
+    let(:params) {{ :database_seeds => ['db01:27017', 'db02:27017'] }}
 
     it do
       should contain_pulp_server_config('database/seeds').with_value('db01:27017,db02:27017')

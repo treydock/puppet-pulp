@@ -33,6 +33,18 @@ class pulp::server(
     }
   }
 
+  if $pulp::server::database_seeds {
+    if is_string($pulp::server::database_seeds) {
+      $_database_seeds = $pulp::server::database_seeds
+    } elsif is_array($pulp::server::database_seeds) {
+      $_database_seeds = join($pulp::server::database_seeds, ',')
+    } else {
+      fail("Module ${module_name}: database_seeds must be an Array or String.")
+    }
+  } else {
+    $_database_seeds = "${pulp::server::database_server}:${pulp::server::database_port}"
+  }
+
   anchor { 'pulp::server::start': }
   anchor { 'pulp::server::end': }
 
