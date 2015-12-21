@@ -1,8 +1,9 @@
 shared_examples_for 'pulp::server::install' do
 
   packages = [
+    'qpid-tools',
     'qpid-cpp-server',
-    'qpid-cpp-server-store',
+    'qpid-cpp-server-linearstore',
     'pulp-server',
     'pulp-puppet-plugins',
     'pulp-rpm-plugins',

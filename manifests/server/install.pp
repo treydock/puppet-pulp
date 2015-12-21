@@ -1,11 +1,15 @@
 # private class
 class pulp::server::install {
 
+  package { 'qpid-tools':
+    ensure  => $pulp::server::package_ensure,
+  }
+
   package { 'qpid-cpp-server':
     ensure  => $pulp::server::package_ensure,
   }
 
-  package { 'qpid-cpp-server-store':
+  package { 'qpid-cpp-server-linearstore':
     ensure  => $pulp::server::package_ensure,
   }
 
